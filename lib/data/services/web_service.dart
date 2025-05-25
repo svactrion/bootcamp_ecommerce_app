@@ -58,25 +58,32 @@ class WebService {
   // lib/data/services/web_service.dart
 
   Future<List<CartItem>> fetchCartItems() async {
-    final r = await _dio.post(
-      '/sepettekiUrunleriGetir.php',
-      data: {'kullaniciAdi': AppConfig.currentUser},
-      options: _form,
-    );
+    try {
+      final r = await _dio.post(
+        '/sepettekiUrunleriGetir.php',
+        data: {'kullaniciAdi': AppConfig.currentUser},
+        options: _form,
+      );
 
-    final body =
-        r.data is String
-            ? jsonDecode(r.data as String)
-            : r.data as Map<String, dynamic>;
+      final body =
+          r.data is String
+              ? jsonDecode(r.data as String)
+              : r.data as Map<String, dynamic>;
 
-    print('fetchCartItems raw response: $body');
+      print('fetchCartItems raw response: $body');
 
-    // ← İşte bu kod:
-    final List<dynamic> listJson = body['urunler_sepeti'] as List<dynamic>;
-
-    return listJson
-        .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
-        .toList();
+      final dynamic rawList = body['urunler_sepeti'];
+      if (rawList is List) {
+        return rawList
+            .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else {
+        return <CartItem>[];
+      }
+    } catch (e, s) {
+      print('fetchCartItems error: $e\n$s');
+      return <CartItem>[]; // Hata durumunda boş liste döndür
+    }
   }
 
   /// 3) Sepetten ürün silme (POST)

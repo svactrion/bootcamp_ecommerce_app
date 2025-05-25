@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/cart/cart_bloc.dart';
 import '../../data/models/cart_item.dart';
-
+import '../../data/services/web_service.dart';
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart';
 
@@ -14,7 +14,20 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sepetim')),
+      appBar: AppBar(
+        title: const Text('Sepetim'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            tooltip: 'Tüm Sepeti Boşalt',
+            onPressed: () async {
+              // Sepeti boşaltma fonksiyonunu burada çağırın
+              await sepetiBosalt();
+              context.read<CartBloc>().add(LoadCart()); // Sepeti güncelle
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<CartBloc, CartState>(
         builder: (context, state) {
           if (state is CartLoading) {
@@ -138,5 +151,12 @@ class CartScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> sepetiBosalt() async {
+    final items = await WebService().fetchCartItems();
+    for (final item in items) {
+      await WebService().removeFromCart(sepetId: item.sepetId);
+    }
   }
 }
