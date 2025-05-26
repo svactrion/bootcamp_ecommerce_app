@@ -16,7 +16,6 @@ class FavoritesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Favoriler Bloc zaten main.dart'da başlatılıyor
     return Scaffold(
-      appBar: AppBar(title: const Text('Favoriler')),
       body: BlocBuilder<FavoritesBloc, FavoritesState>(
         builder: (context, state) {
           if (state is FavoritesInitial) {
@@ -32,12 +31,12 @@ class FavoritesScreen extends StatelessWidget {
               return const Center(child: Text('Henüz favori yok'));
             }
             return ListView.builder(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(20),
               itemCount: favs.length,
               itemBuilder: (ctx, i) {
                 final product = favs[i];
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     leading: SizedBox(
                       width: 60,

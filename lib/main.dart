@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'data/services/web_service.dart';
 import 'data/repositories/product_repository.dart';
@@ -18,7 +19,6 @@ import 'ui/screens/favorite_screen.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Tüm servis/repo örneklerini tek bir webService üzerinden oluşturalım:
   final webService = WebService();
   final productRepo = ProductRepository(webService);
   final cartRepo = CartRepository(webService);
@@ -37,25 +37,49 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // 1) Ürünleri çeken Bloc
         BlocProvider<ProductBloc>(
           create: (_) => ProductBloc(productRepo)..add(LoadProducts()),
         ),
-
-        // 2) Sepet Bloc’u (LoadCart hemen tetikleniyor)
         BlocProvider<CartBloc>(
           create: (_) => CartBloc(cartRepo)..add(LoadCart()),
         ),
-
-        // 3) Arama Bloc’u
         BlocProvider<SearchBloc>(create: (_) => SearchBloc(productRepo)),
-
-        // 4) Favoriler Bloc’u
         BlocProvider<FavoritesBloc>(create: (_) => FavoritesBloc()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Bootcamp Ecommerce App',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+          // Figma’dan aldığın ana renk
+          primaryColor: const Color(0xFF1E88E5),
+          scaffoldBackgroundColor: Colors.white,
+          // Google Fonts ile Poppins
+          textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+          // ElevatedButton teması
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E88E5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          // InputDecoration (arama çubuğu) teması
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            prefixIconColor: Colors.grey.shade600,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
         home: const HomeScreen(),
         routes: {
           DetailScreen.routeName: (_) => const DetailScreen(),
