@@ -1,15 +1,15 @@
-// lib/ui/screens/detail_screen.dart
-
+// Gerekli importlar: ekran navigasyonu, BLoC’lar ve ürün modeli
+import 'package:bootcamp_ecommerce_app/ui/screens/main_screen_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/cart/cart_bloc.dart';
 import '../../blocs/favorites/favorites_bloc.dart';
 import '../../data/models/product.dart';
-import 'cart_screen.dart';
 
+// DetailScreen widget'ı – bir ürünün detaylarını gösteren ekran
 class DetailScreen extends StatefulWidget {
-  static const routeName = '/detail';
+  static const routeName = '/detail'; // Route ismi
 
   const DetailScreen({Key? key}) : super(key: key);
 
@@ -17,22 +17,27 @@ class DetailScreen extends StatefulWidget {
   State<DetailScreen> createState() => _DetailScreenState();
 }
 
+// Stateful çünkü quantity ve favorite durumu değişebilir
 class _DetailScreenState extends State<DetailScreen> {
-  int _quantity = 1;
-  bool _isFavorite = false;
+  int _quantity = 1; // Ürün adedi
+  bool _isFavorite = false; // Favori durumu
 
   @override
   Widget build(BuildContext context) {
+    // Ürün bilgisi route arguments'tan alınıyor
     final product = ModalRoute.of(context)!.settings.arguments as Product;
+
+    // Bloc'lar context üzerinden çağrılıyor
     final cartBloc = context.read<CartBloc>();
     final favBloc = context.read<FavoritesBloc>();
 
     return Scaffold(
-      // Ana navigasyonun app bar’ı yerine sayfa başlığı olarak ürün adı
+      // Üst kısımdaki AppBar – ürün adı yazıyor
       appBar: AppBar(
-        title: Text(product.kategori),
+        title: Text(product.ad),
         leading: const BackButton(),
         elevation: 1,
+        backgroundColor: Colors.amberAccent,
       ),
       body: SafeArea(
         child: Padding(
@@ -41,15 +46,15 @@ class _DetailScreenState extends State<DetailScreen> {
             children: [
               // Ürün görseli
               AspectRatio(
-                aspectRatio: 1,
+                aspectRatio: 1.0, // Kare görünüm
                 child: Image.network(
                   'http://kasimadalan.pe.hu/urunler/resimler/${product.resim}',
-                  fit: BoxFit.contain,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Başlık + Favori butonu
+              // Ürün adı ve favori butonu
               Row(
                 children: [
                   Expanded(
@@ -65,16 +70,17 @@ class _DetailScreenState extends State<DetailScreen> {
                     icon: Icon(
                       _isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: _isFavorite ? Colors.red : null,
+                      size: 30,
                     ),
                     onPressed: () {
-                      setState(() => _isFavorite = !_isFavorite);
+                      setState(() => _isFavorite = !_isFavorite); // Toggle
                       if (_isFavorite) {
-                        favBloc.add(AddFavorite(product));
+                        favBloc.add(AddFavorite(product)); // Favoriye ekle
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Favorilere eklendi')),
                         );
                       } else {
-                        favBloc.add(RemoveFavorite(product.id));
+                        favBloc.add(RemoveFavorite(product.id)); // Kaldır
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Favorilerden kaldırıldı'),
@@ -92,12 +98,16 @@ class _DetailScreenState extends State<DetailScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   '${product.fiyat} TL',
-                  style: const TextStyle(fontSize: 20, color: Colors.green),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
 
-              // Kategori & Marka
+              // Kategori ve Marka bilgisi
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Kategori: ${product.kategori}'),
@@ -108,7 +118,7 @@ class _DetailScreenState extends State<DetailScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Adet seçici
+              // Adet seçme arayüzü
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -128,7 +138,7 @@ class _DetailScreenState extends State<DetailScreen> {
               ),
               const Spacer(),
 
-              // Sepete Ekle & Hemen Satın Al
+              // Sepete ekle ve hemen satın al butonları
               Row(
                 children: [
                   Expanded(
@@ -147,7 +157,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           _quantity,
                         );
                         if (ok) {
-                          cartBloc.add(LoadCart());
+                          cartBloc.add(LoadCart()); // Sepeti güncelle
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Ürün sepete eklendi'),
@@ -175,18 +185,14 @@ class _DetailScreenState extends State<DetailScreen> {
                         );
                         if (ok) {
                           cartBloc.add(LoadCart());
-                          // Burada pushReplacement ile aynı route’a tekrar gideriz:
-                          Navigator.pushReplacementNamed(
-                            context,
-                            CartScreen.routeName,
-                          );
+                          Navigator.of(context).pop(); // Bu ekranı kapat
+                          navController.jumpToTab(2); // Sepet tab'ına geç
                         }
                       },
                     ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
             ],
           ),

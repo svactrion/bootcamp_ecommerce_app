@@ -22,7 +22,7 @@ dependencies:
   carousel_slider: 
   flutter_slidable: 
   google_fonts: 
-
+  persistent_bottom_nav_bar: 
 
   cupertino_icons: ^1.0.8
 

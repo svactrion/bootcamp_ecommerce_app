@@ -1,78 +1,152 @@
-// lib/ui/screens/favorite_screen.dart
-
+// Gerekli kütüphaneler
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../blocs/favorites/favorites_bloc.dart';
-import '../../data/models/product.dart';
+import '../../blocs/cart/cart_bloc.dart';
 import 'detail_screen.dart';
 
-class FavoritesScreen extends StatelessWidget {
-  static const routeName = '/favorites';
+// FavoriteScreen widget'ı
+class FavoriteScreen extends StatelessWidget {
+  const FavoriteScreen({Key? key}) : super(key: key);
 
-  const FavoritesScreen({Key? key}) : super(key: key);
+  static const routeName = '/favorites'; // Route için sabit tanım
 
   @override
   Widget build(BuildContext context) {
-    // Favoriler Bloc zaten main.dart'da başlatılıyor
+    final cartBloc =
+        context
+            .read<CartBloc>(); // Sepete ürün eklemek için CartBloc kullanılır
+
     return Scaffold(
-      body: BlocBuilder<FavoritesBloc, FavoritesState>(
-        builder: (context, state) {
-          if (state is FavoritesInitial) {
-            // İlk durum, Bloc init sırasında LoadFavorites() çağırıyor
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is FavoritesLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is FavoritesError) {
-            return Center(child: Text('Hata: ${state.message}'));
-          } else if (state is FavoritesLoaded) {
-            final List<Product> favs = state.favorites;
-            if (favs.isEmpty) {
-              return const Center(child: Text('Henüz favori yok'));
-            }
-            return ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: favs.length,
-              itemBuilder: (ctx, i) {
-                final product = favs[i];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: Image.network(
-                        'http://kasimadalan.pe.hu/urunler/resimler/${product.resim}',
-                        fit: BoxFit.cover,
-                      ),
+      appBar: AppBar(
+        title: const Text('Favorilerim'), // Sayfa başlığı
+        centerTitle: true,
+        elevation: 2,
+        backgroundColor: Colors.amberAccent,
+      ),
+
+      // Arka plan için linear gradient
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blueGrey, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+
+        // Favori ürünleri BLoC üzerinden dinler
+        child: BlocBuilder<FavoritesBloc, FavoritesState>(
+          builder: (context, state) {
+            // Eğer yüklenmişse ve favori ürün varsa
+            if (state is FavoritesLoaded && state.favorites.isNotEmpty) {
+              return ListView.builder(
+                itemCount: state.favorites.length,
+                itemBuilder: (context, index) {
+                  final product = state.favorites[index];
+
+                  return Dismissible(
+                    key: Key(product.id.toString()),
+                    direction: DismissDirection.endToStart, // Sola kaydırma
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: const Icon(Icons.delete, color: Colors.white),
                     ),
-                    title: Text(product.ad),
-                    subtitle: Text('${product.fiyat} TL'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () {
-                        context.read<FavoritesBloc>().add(
-                          RemoveFavorite(product.id),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Favoriden kaldırıldı')),
-                        );
-                      },
-                    ),
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        DetailScreen.routeName,
-                        arguments: product,
+
+                    // Sola kaydırınca favoriden çıkarma
+                    onDismissed: (_) {
+                      context.read<FavoritesBloc>().add(
+                        RemoveFavorite(product.id),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${product.ad} favorilerden kaldırıldı',
+                          ),
+                        ),
                       );
                     },
-                  ),
-                );
-              },
-            );
-          }
-          return const SizedBox.shrink();
-        },
+
+                    // Ürün kartı tasarımı
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      elevation: 4,
+
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+
+                        // Ürün resmi
+                        leading: Image.network(
+                          'http://kasimadalan.pe.hu/urunler/resimler/${product.resim}',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+
+                        // Ürün adı
+                        title: Text(product.ad),
+
+                        // Fiyat bilgisi
+                        subtitle: Text('${product.fiyat} TL'),
+
+                        // Tıklayınca detay sayfasına geçiş
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).pushNamed(
+                            DetailScreen.routeName,
+                            arguments: product,
+                          );
+                        },
+
+                        // "Sepete Ekle" butonu
+                        trailing: ElevatedButton(
+                          onPressed: () async {
+                            final ok = await cartBloc.repository.addToCart(
+                              product,
+                              1, // varsayılan olarak 1 adet
+                            );
+                            if (ok) {
+                              cartBloc.add(LoadCart()); // sepeti güncelle
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('${product.ad} sepete eklendi'),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            "Sepete Ekle",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
+            // Favori listesi boşsa gösterilecek ekran
+            return const Center(child: Text('Favori ürününüz bulunmamaktadır'));
+          },
+        ),
       ),
     );
   }
