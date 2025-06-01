@@ -103,4 +103,30 @@ class WebService {
     print('removeFromCart response: $resp');
     return resp['success'] == 1;
   }
+
+  Future<bool> updateCartItemQuantity({
+    required int sepetId,
+    required int yeniAdet,
+  }) async {
+    print(
+      '[WebService] updateCartItemQuantity çağrıldı: sepetId=$sepetId, yeniAdet=$yeniAdet',
+    );
+    final r = await _dio.post(
+      '/sepettekiUrunGuncelle.php',
+      data: {
+        'sepetId': sepetId,
+        'siparisAdeti': yeniAdet.toString(),
+        'kullaniciAdi': AppConfig.currentUser,
+      },
+      options: _form,
+    );
+    print('[WebService] Response data: ${r.data}');
+    final resp =
+        (r.data is String)
+            ? jsonDecode(r.data as String)
+            : r.data as Map<String, dynamic>;
+    final success = resp['success'] == 1;
+    print('[WebService] success=$success');
+    return success;
+  }
 }

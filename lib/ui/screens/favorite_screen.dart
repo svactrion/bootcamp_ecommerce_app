@@ -1,21 +1,19 @@
-// Gerekli kütüphaneler
+// lib/ui/screens/favorite_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/favorites/favorites_bloc.dart';
 import '../../blocs/cart/cart_bloc.dart';
 import 'detail_screen.dart';
 
-// FavoriteScreen widget'ı
 class FavoriteScreen extends StatelessWidget {
   const FavoriteScreen({super.key});
 
-  static const routeName = '/favorites'; // Route için sabit tanım
+  static const routeName = '/favorites';
 
   @override
   Widget build(BuildContext context) {
-    final cartBloc =
-        context
-            .read<CartBloc>(); // Sepete ürün eklemek için CartBloc kullanılır
+    final cartBloc = context.read<CartBloc>();
 
     return Scaffold(
       appBar: AppBar(
@@ -26,13 +24,11 @@ class FavoriteScreen extends StatelessWidget {
             fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
-        ), // Sayfa başlığı
+        ),
         centerTitle: true,
         elevation: 2,
-        backgroundColor: Color(0xFF0096C7), // AppBar arka plan rengi
+        backgroundColor: const Color(0xFF0096C7),
       ),
-
-      // Arka plan için linear gradient
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -41,28 +37,24 @@ class FavoriteScreen extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-
-        // Favori ürünleri BLoC üzerinden dinler
         child: BlocBuilder<FavoritesBloc, FavoritesState>(
           builder: (context, state) {
-            // Eğer yüklenmişse ve favori ürün varsa
             if (state is FavoritesLoaded && state.favorites.isNotEmpty) {
               return ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 itemCount: state.favorites.length,
                 itemBuilder: (context, index) {
                   final product = state.favorites[index];
 
                   return Dismissible(
                     key: Key(product.id.toString()),
-                    direction: DismissDirection.endToStart, // Sola kaydırma
+                    direction: DismissDirection.endToStart,
                     background: Container(
                       color: Colors.red,
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
-
-                    // Sola kaydırınca favoriden çıkarma
                     onDismissed: (_) {
                       context.read<FavoritesBloc>().add(
                         RemoveFavorite(product.id),
@@ -75,64 +67,70 @@ class FavoriteScreen extends StatelessWidget {
                         ),
                       );
                     },
-
-                    // Ürün kartı tasarımı
                     child: Card(
                       color: const Color(0xFFF8F9FA),
                       margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: 8,
+                        vertical: 5,
                       ),
                       elevation: 4,
-
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                          horizontal: 8,
+                          vertical: 5,
                         ),
-
-                        // Ürün resmi
                         leading: Image.network(
                           'http://kasimadalan.pe.hu/urunler/resimler/${product.resim}',
-                          width: 60,
-                          height: 60,
+                          width: 50,
+                          height: 50,
                           fit: BoxFit.cover,
                         ),
-
-                        // Ürün adı
-                        title: Text(product.ad),
-
-                        // Fiyat bilgisi
-                        subtitle: Text('${product.fiyat} TL'),
-
-                        // Tıklayınca detay sayfasına geçiş
+                        // Marka ve Adı yan yana, daha sıkışık
+                        title: Row(
+                          children: [
+                            Text(
+                              product.marka,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                product.ad,
+                                style: const TextStyle(fontSize: 14),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        subtitle: Text(
+                          '${product.fiyat} TL',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                         onTap: () {
                           Navigator.of(context, rootNavigator: true).pushNamed(
                             DetailScreen.routeName,
                             arguments: product,
                           );
                         },
-
-                        // "Sepete Ekle" butonu
                         trailing: ElevatedButton(
-                          onPressed: () async {
-                            final ok = await cartBloc.repository.addToCart(
-                              product,
-                              1, // varsayılan olarak 1 adet
+                          onPressed: () {
+                            cartBloc.add(
+                              AddProductToCart(product: product, quantity: 1),
                             );
-                            if (ok) {
-                              cartBloc.add(LoadCart()); // sepeti güncelle
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('${product.ad} sepete eklendi'),
-                                ),
-                              );
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${product.ad} sepete eklendi'),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                              0xFF0096C7,
-                            ), // Butonun arka planı
+                            backgroundColor: const Color(0xFF0096C7),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -142,7 +140,7 @@ class FavoriteScreen extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            "Sepete Ekle",
+                            'Sepete Ekle',
                             style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
@@ -153,7 +151,6 @@ class FavoriteScreen extends StatelessWidget {
               );
             }
 
-            // Favori listesi boşsa gösterilecek ekran
             return const Center(child: Text('Favori ürününüz bulunmamaktadır'));
           },
         ),

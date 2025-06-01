@@ -34,10 +34,17 @@ class _DetailScreenState extends State<DetailScreen> {
     return Scaffold(
       // Üst kısımdaki AppBar – ürün adı yazıyor
       appBar: AppBar(
-        title: Text(product.ad),
+        title: Text(
+          product.ad,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: const BackButton(),
         elevation: 1,
-        backgroundColor: Color(0xFFFF6000),
+        backgroundColor: const Color(0xFFFF6000),
       ),
       body: SafeArea(
         child: Padding(
@@ -158,27 +165,23 @@ class _DetailScreenState extends State<DetailScreen> {
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      onPressed: () async {
-                        final ok = await cartBloc.repository.addToCart(
-                          product,
-                          _quantity,
+                      onPressed: () {
+                        // Artık doğrudan repository değil, Bloc event’i çağrıyoruz:
+                        cartBloc.add(
+                          AddProductToCart(
+                            product: product,
+                            quantity: _quantity,
+                          ),
                         );
-                        if (ok) {
-                          cartBloc.add(LoadCart()); // Sepeti güncelle
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Ürün sepete eklendi'),
-                            ),
-                          );
-                        }
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Ürün sepete eklendi')),
+                        );
                       },
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      // ignore: sort_child_properties_last
                       child: const Text(
                         'Hemen Satın Al',
                         style: TextStyle(fontSize: 18, color: Colors.white),
@@ -190,17 +193,19 @@ class _DetailScreenState extends State<DetailScreen> {
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      onPressed: () async {
-                        final ok = await cartBloc.repository.addToCart(
-                          product,
-                          _quantity,
+                      onPressed: () {
+                        // Yine doğrudan repository yerine Bloc event’i:
+                        cartBloc.add(
+                          AddProductToCart(
+                            product: product,
+                            quantity: _quantity,
+                          ),
                         );
-                        if (ok) {
-                          cartBloc.add(LoadCart());
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pop(); // Bu ekranı kapat
-                          navController.jumpToTab(2); // Sepet tab'ına geç
-                        }
+                        // Sepeti güncelle ve doğrudan Sepet tab’ına yönlendir
+                        cartBloc.add(LoadCart());
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pop(); // Bu ekranı kapat
+                        navController.jumpToTab(2); // Sepet tab'ına geç
                       },
                     ),
                   ),

@@ -1,38 +1,46 @@
-// Gerekli dosyaları içe aktarır:
-// - WebService: API işlemlerini yürütür
-// - CartItem: Sepetteki ürünleri temsil eden model
-// - Product: Sepete eklenecek ürünleri temsil eden model
-import '../services/web_service.dart';
+// lib/data/repositories/cart_repository.dart
+
 import '../models/cart_item.dart';
 import '../models/product.dart';
+import '../services/web_service.dart';
 
-// Bu sınıf, sepete ürün ekleme, silme ve sepeti listeleme işlemlerini gerçekleştirir.
-// Amaç: CartBloc gibi yapılar bu sınıfı kullanarak veriyle ilgilenir.
 class CartRepository {
-  final WebService _ws; // API işlemlerini yönetecek servis sınıfı
-
-  // Constructor: WebService nesnesi dışarıdan alınır (dependency injection)
+  final WebService _ws;
   CartRepository(this._ws);
 
-  /// Sepete ürün ekler.
-  /// [product] → eklenecek ürün
-  /// [quantity] → adet bilgisi
-  /// Kullanıldığı yer: DetailScreen'deki "Sepete Ekle" butonu
-  Future<bool> addToCart(Product product, int quantity) {
-    return _ws.addToCart(product: product, siparisAdeti: quantity);
+  /// Mevcut sepeti çeker.
+  Future<List<CartItem>> fetchCartItems() async {
+    return await _ws.fetchCartItems();
   }
 
-  /// Sepetteki tüm ürünleri getirir.
-  /// Dönen değer: List<CartItem>
-  /// Kullanıldığı yer: CartBloc → CartScreen (sepet ekranı)
-  Future<List<CartItem>> fetchCartItems() {
-    return _ws.fetchCartItems();
+  /// Sepete yeni bir ürün ekler.
+  Future<bool> addToCart(Product product, int quantity) async {
+    return await _ws.addToCart(
+      product: product,
+      siparisAdeti: quantity,
+    );
   }
 
-  /// Sepetten ürün siler.
-  /// [cartItemId] → silinecek sepet öğesinin ID'si
-  /// Kullanıldığı yer: CartScreen → ürün yanındaki çöp kutusu ikonu
-  Future<bool> removeFromCart(int cartItemId) {
-    return _ws.removeFromCart(sepetId: cartItemId);
+  /// Sepet öğesini siler.
+  Future<bool> removeFromCart(int cartItemId) async {
+    return await _ws.removeFromCart(
+      sepetId: cartItemId,
+    );
+  }
+
+  /// Siparişi değiştirecek bir "güncelleme" endpoint'i yoksa,
+  /// bu metot “mevcut satırı silip, yeni miktarla tekrar ekler”.
+  Future<bool> mergeCartItem({
+    required CartItem existingItem,
+    required Product product,
+    required int newQuantity,
+  }) async {
+    // 1) Mevcut satırı sil
+    final removed = await removeFromCart(existingItem.sepetId);
+    if (!removed) return false;
+
+    // 2) Yeni miktarla tekrar ekle
+    final added = await addToCart(product, newQuantity);
+    return added;
   }
 }

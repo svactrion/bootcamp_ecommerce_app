@@ -4,12 +4,13 @@ part of 'cart_bloc.dart';
 
 abstract class CartState extends Equatable {
   const CartState();
-
   @override
   List<Object?> get props => [];
 }
 
 class CartLoading extends CartState {}
+
+class CartEmpty extends CartState {}
 
 class CartLoaded extends CartState {
   final List<CartItem> items;
@@ -18,8 +19,6 @@ class CartLoaded extends CartState {
   @override
   List<Object?> get props => [items];
 }
-
-class CartEmpty extends CartState {} // ← boş sepet durumu
 
 class CartError extends CartState {
   final String message;
