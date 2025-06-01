@@ -7,7 +7,7 @@ import 'detail_screen.dart';
 
 // FavoriteScreen widget'ı
 class FavoriteScreen extends StatelessWidget {
-  const FavoriteScreen({Key? key}) : super(key: key);
+  const FavoriteScreen({super.key});
 
   static const routeName = '/favorites'; // Route için sabit tanım
 
@@ -22,14 +22,14 @@ class FavoriteScreen extends StatelessWidget {
         title: const Text('Favorilerim'), // Sayfa başlığı
         centerTitle: true,
         elevation: 2,
-        backgroundColor: Colors.amberAccent,
+        backgroundColor: Color(0xFF0096C7), // AppBar arka plan rengi
       ),
 
       // Arka plan için linear gradient
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blueGrey, Colors.white],
+            colors: [Color(0xFF0096C7), Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -71,6 +71,7 @@ class FavoriteScreen extends StatelessWidget {
 
                     // Ürün kartı tasarımı
                     child: Card(
+                      color: const Color(0xFFF8F9FA),
                       margin: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
@@ -122,7 +123,9 @@ class FavoriteScreen extends StatelessWidget {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: const Color(
+                              0xFF0096C7,
+                            ), // Butonun arka planı
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
@@ -133,7 +136,7 @@ class FavoriteScreen extends StatelessWidget {
                           ),
                           child: const Text(
                             "Sepete Ekle",
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 12, color: Colors.white),
                           ),
                         ),
                       ),

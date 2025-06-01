@@ -1,20 +1,17 @@
 // lib/ui/screens/cart_screen.dart
 
-// Ana navigasyon controller'ı (tablar arasında geçiş için)
-import 'main_screen_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/cart/cart_bloc.dart';
+import 'main_screen_controller.dart'; // “navController” için
 
-// StatelessWidget olarak tanımlanmış CartScreen
 class CartScreen extends StatelessWidget {
-  static const routeName = '/cart'; // Bu ekranın route adı
+  static const routeName = '/cart';
 
   const CartScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Sepet durumu CartBloc üzerinden dinleniyor
     return BlocBuilder<CartBloc, CartState>(
       builder: (context, state) {
         return Scaffold(
@@ -22,35 +19,30 @@ class CartScreen extends StatelessWidget {
             title: const Text('Sepetim'),
             centerTitle: true,
             elevation: 1,
-            backgroundColor: Colors.orangeAccent, // AppBar rengi
+            backgroundColor: const Color(0xFF138808), // Yeşil ton
           ),
-          // Arka plan geçişli renk için Container kullanılıyor
           body: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.orangeAccent, Colors.white],
+                colors: [Color(0xFF138808), Colors.white],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: _buildBody(
-              context,
-              state,
-            ), // Sepet durumu burada ele alınıyor
+            child: _buildBody(context, state),
           ),
         );
       },
     );
   }
 
-  // Sepet durumu için içerik oluşturan fonksiyon
   Widget _buildBody(BuildContext context, CartState state) {
-    // Yükleniyor durumundaysa loading göster
+    // 1) Yükleniyorsa
     if (state is CartLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Hata durumu
+    // 2) Hata varsa
     if (state is CartError) {
       return Center(
         child: Text(
@@ -60,7 +52,7 @@ class CartScreen extends StatelessWidget {
       );
     }
 
-    // Sepet boşsa kullanıcıya bilgi ver ve alışverişe başlat
+    // 3) Sepet boşsa
     if (state is CartEmpty) {
       return Center(
         child: Column(
@@ -69,7 +61,7 @@ class CartScreen extends StatelessWidget {
             const Icon(
               Icons.shopping_cart_outlined,
               size: 80,
-              color: Colors.grey,
+              color: Colors.black54,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -79,13 +71,24 @@ class CartScreen extends StatelessWidget {
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: () {
-                // Kullanıcıyı ana sayfaya yönlendir
+                // Ana sayfaya (Home sekmesi) dönecek
                 Navigator.of(
                   context,
                   rootNavigator: true,
                 ).popUntil((route) => route.isFirst);
-                navController.jumpToTab(0); // Home sekmesine geç
+                navController.jumpToTab(0);
               },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black, // Metin rengi
+                backgroundColor: Colors.white, // Buton arkaplan
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
               child: const Text('Alışverişe Başla'),
             ),
           ],
@@ -93,30 +96,27 @@ class CartScreen extends StatelessWidget {
       );
     }
 
-    // Sepet doluysa ürünleri göster
+    // 4) Sepet doluysa
     if (state is CartLoaded) {
       final items = state.items;
-
-      // Toplam fiyat hesaplaması
       final subtotal = items.fold<double>(
         0,
         (sum, item) => sum + item.fiyat * item.siparisAdeti,
       );
-
       final itemCountLabel =
           'Subtotal (${items.length} item${items.length > 1 ? 's' : ''})';
 
       return Column(
         children: [
-          // Ürün listesi
+          // 4.1) Ürün listesi
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.all(8),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const Divider(),
+              separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (ctx, i) {
                 final item = items[i];
-
+                final lineTotal = item.fiyat * item.siparisAdeti;
                 return Dismissible(
                   key: Key(item.sepetId.toString()),
                   direction: DismissDirection.endToStart,
@@ -127,43 +127,53 @@ class CartScreen extends StatelessWidget {
                     child: const Icon(Icons.delete, color: Colors.white),
                   ),
                   onDismissed: (direction) {
-                    // Ürün silindiğinde bloc'a event gönderiliyor
                     context.read<CartBloc>().add(
                       RemoveProductFromCart(item.sepetId),
                     );
-
-                    // Geri bildirim olarak snackbar gösteriliyor
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('${item.ad} sepetten kaldırıldı')),
                     );
                   },
-                  child: ListTile(
-                    leading: Image.network(
-                      'http://kasimadalan.pe.hu/urunler/resimler/${item.resim}',
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
+                  child: Card(
+                    color: Color(0xFFF8F9FA),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 6,
                     ),
-                    title: Text(item.ad),
-                    subtitle: Text(
-                      '${item.fiyat} TL × ${item.siparisAdeti} = ${item.fiyat * item.siparisAdeti} TL',
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () {
-                        context.read<CartBloc>().add(
-                          RemoveProductFromCart(item.sepetId),
-                        );
-                      },
+                    elevation: 4,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      leading: Image.network(
+                        'http://kasimadalan.pe.hu/urunler/resimler/${item.resim}',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                      title: Text(item.ad),
+                      subtitle: Text(
+                        '${item.fiyat} TL × ${item.siparisAdeti} = $lineTotal TL',
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () {
+                          context.read<CartBloc>().add(
+                            RemoveProductFromCart(item.sepetId),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 );
               },
             ),
           ),
-          const Divider(),
 
-          // Toplam tutar alanı
+          const Divider(height: 1),
+
+          // 4.2) Alt toplam ve toplam
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
@@ -181,13 +191,15 @@ class CartScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(),
 
-          // Sepeti boşalt ve tamamla butonları
+          const Divider(height: 1),
+
+          // 4.3) Aksiyon butonları
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                // Sepeti Boşalt
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -196,27 +208,34 @@ class CartScreen extends StatelessWidget {
                       context.read<CartBloc>().add(ClearCart());
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange,
+                      backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-                    child: const Text('Sepeti Boşalt'),
+                    child: const Text(
+                      'Sepeti Boşalt',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
+                // Alışverişi Tamamla
                 SizedBox(
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: null, // Henüz fonksiyonu tanımlanmadı
+                    onPressed: null, // Henüz işlev tanımlanmadı
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepOrange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-                    child: const Text('Alışverişi Tamamla'),
+                    child: const Text(
+                      'Alışverişi Tamamla',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
                   ),
                 ),
               ],
@@ -226,11 +245,10 @@ class CartScreen extends StatelessWidget {
       );
     }
 
-    // Diğer durumlar için boş widget
+    // 5) Diğer durumlar
     return const SizedBox.shrink();
   }
 
-  // Toplam ve ara toplam satırlarını çizen yardımcı widget
   Widget _buildPriceRow(String label, String value, {bool isTotal = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

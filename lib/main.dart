@@ -37,8 +37,7 @@ class MyApp extends StatelessWidget {
   final ProductRepository productRepo;
   final CartRepository cartRepo;
 
-  const MyApp({Key? key, required this.productRepo, required this.cartRepo})
-    : super(key: key);
+  const MyApp({super.key, required this.productRepo, required this.cartRepo});
 
   @override
   Widget build(BuildContext context) {

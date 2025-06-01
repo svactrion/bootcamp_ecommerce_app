@@ -8,7 +8,7 @@ import 'favorite_screen.dart';
 import 'main_screen_controller.dart'; // ✅ global controller
 
 class MainScreen extends StatelessWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   // Her sekme için gösterilecek sayfaları döndüren metod
   List<Widget> _buildScreens() {
@@ -24,20 +24,20 @@ class MainScreen extends StatelessWidget {
     return [
       PersistentBottomNavBarItem(
         icon: Icon(Icons.home), // Ev ikonu
-        title: ("Home"), // Sekme başlığı
-        activeColorPrimary: Colors.red, // Aktifken renk
+        title: ("Anasayfa"), // Sekme başlığı
+        activeColorPrimary: Color(0xFFFF6000), // Aktifken renk
         inactiveColorPrimary: Colors.grey, // Pasifken renk
       ),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.favorite),
-        title: ("Favorites"),
-        activeColorPrimary: Colors.blue,
+        title: ("Favoriler"),
+        activeColorPrimary: Color(0xFF0096C7),
         inactiveColorPrimary: Colors.grey,
       ),
       PersistentBottomNavBarItem(
         icon: Icon(Icons.shopping_cart),
-        title: ("Cart"),
-        activeColorPrimary: Colors.green,
+        title: ("Sepet"),
+        activeColorPrimary: Color(0xFF138808),
         inactiveColorPrimary: Colors.grey,
       ),
     ];

@@ -11,7 +11,7 @@ import '../../data/models/product.dart';
 class DetailScreen extends StatefulWidget {
   static const routeName = '/detail'; // Route ismi
 
-  const DetailScreen({Key? key}) : super(key: key);
+  const DetailScreen({super.key});
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
@@ -37,7 +37,7 @@ class _DetailScreenState extends State<DetailScreen> {
         title: Text(product.ad),
         leading: const BackButton(),
         elevation: 1,
-        backgroundColor: Colors.amberAccent,
+        backgroundColor: Color(0xFFFF6000),
       ),
       body: SafeArea(
         child: Padding(
@@ -143,8 +143,15 @@ class _DetailScreenState extends State<DetailScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.add_shopping_cart),
-                      label: const Text('Sepete Ekle'),
+                      icon: const Icon(
+                        Icons.add_shopping_cart,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      label: const Text(
+                        'Sepete Ekle',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -158,6 +165,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         );
                         if (ok) {
                           cartBloc.add(LoadCart()); // Sepeti güncelle
+                          // ignore: use_build_context_synchronously
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Ürün sepete eklendi'),
@@ -170,7 +178,11 @@ class _DetailScreenState extends State<DetailScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      child: const Text('Hemen Satın Al'),
+                      // ignore: sort_child_properties_last
+                      child: const Text(
+                        'Hemen Satın Al',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepOrange,
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -185,6 +197,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         );
                         if (ok) {
                           cartBloc.add(LoadCart());
+                          // ignore: use_build_context_synchronously
                           Navigator.of(context).pop(); // Bu ekranı kapat
                           navController.jumpToTab(2); // Sepet tab'ına geç
                         }

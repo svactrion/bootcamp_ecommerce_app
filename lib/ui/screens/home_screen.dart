@@ -10,7 +10,7 @@ import 'detail_screen.dart'; // ürün detay sayfası
 
 // Home ekranı Stateful çünkü arama için bir bloc'a erişilecek
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,17 +31,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       // Üst AppBar: Sayfa başlığı
       appBar: AppBar(
-        title: const Text('Bootcamp Ecommerce'),
+        title: const Text('Bootcamp Market'),
         centerTitle: true,
         elevation: 2,
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: Color(0xFFFF6000),
       ),
 
       // Arka plana gradient efekti
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blueGrey, Colors.white],
+            colors: [Color(0xFFFF6000), Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -84,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         decoration: BoxDecoration(
                           boxShadow: [
                             BoxShadow(
+                              // ignore: deprecated_member_use
                               color: Colors.grey.withOpacity(0.3),
                               blurRadius: 6,
                               offset: const Offset(0, 3),
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                               child: Card(
                                 elevation: 10,
-                                color: Colors.amberAccent,
+                                color: const Color(0xFFF8F9FA),
                                 margin: const EdgeInsets.all(10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
