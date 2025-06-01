@@ -8,7 +8,7 @@ import 'main_screen_controller.dart'; // “navController” için
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart';
 
-  const CartScreen({Key? key}) : super(key: key);
+  const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +208,7 @@ class CartScreen extends StatelessWidget {
                       context.read<CartBloc>().add(ClearCart());
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
@@ -225,13 +225,111 @@ class CartScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: null, // Henüz işlev tanımlanmadı
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange,
+                      backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),
                     ),
+                    onPressed: () async {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(16),
+                          ),
+                        ),
+                        builder:
+                            (_) => Padding(
+                              padding: EdgeInsets.only(
+                                left: 24,
+                                right: 24,
+                                top: 24,
+                                // Klavyeden etkilenmesi için viewInsets + fazladan boşluk
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom +
+                                    250,
+                              ),
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      "Kart Bilgisi",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    TextField(
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        hintText: '4242 4242 4242 4242',
+                                        labelText: 'Kart Numarası',
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 16,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              hintText: 'AA/YY',
+                                              labelText: 'AA/YY',
+                                            ),
+                                            maxLength: 4,
+                                            keyboardType: TextInputType.number,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: TextField(
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              hintText: 'CVV',
+                                              labelText: 'CVV',
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            obscureText: true,
+                                            maxLength: 3,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        context.read<CartBloc>().add(
+                                          ClearCart(),
+                                        );
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Simülasyon: Ödeme başarılı",
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text(
+                                        "Ödemeyi Onayla",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                      );
+                    },
+
                     child: const Text(
                       'Alışverişi Tamamla',
                       style: TextStyle(color: Colors.white, fontSize: 18),
