@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart'; // Binlik ayırıcı için
 import '../../blocs/cart/cart_bloc.dart';
 import 'main_screen_controller.dart'; // “navController” için
 
@@ -26,7 +27,7 @@ class CartScreen extends StatelessWidget {
             ),
             centerTitle: true,
             elevation: 1,
-            backgroundColor: const Color(0xFF138808), // Yeşil ton
+            backgroundColor: const Color(0xFF138808),
           ),
           body: Container(
             decoration: const BoxDecoration(
@@ -109,10 +110,13 @@ class CartScreen extends StatelessWidget {
         0,
         (sum, item) => sum + item.siparisAdeti,
       );
+      // Binlik ayırıcı kullanarak TL cinsinden formatla
+      final formattedTotal = NumberFormat.decimalPattern().format(
+        subtotal.toInt(),
+      );
 
       return Column(
         children: [
-          // Ürün listesi
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -144,7 +148,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     elevation: 4,
                     child: SizedBox(
-                      height: 80, // Sabit yükseklik
+                      height: 80,
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -238,7 +242,7 @@ class CartScreen extends StatelessWidget {
 
           const Divider(height: 1),
 
-          // Sadece tek Total satırı
+          // Tek Total satırı: toplam ürün sayısı ve binlik ayırıcıyla formatlanmış tutar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -252,7 +256,7 @@ class CartScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${subtotal.toStringAsFixed(2)} TL',
+                  '$formattedTotal TL',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -264,12 +268,10 @@ class CartScreen extends StatelessWidget {
 
           const Divider(height: 1),
 
-          // Aksiyon butonları
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Sepeti Boşalt
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -290,7 +292,6 @@ class CartScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Alışverişi Tamamla
                 SizedBox(
                   width: double.infinity,
                   height: 48,

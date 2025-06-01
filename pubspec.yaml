@@ -23,6 +23,7 @@ dependencies:
   flutter_slidable: 
   google_fonts: 
   persistent_bottom_nav_bar: 
+  intl:
 
   cupertino_icons: ^1.0.8
 
