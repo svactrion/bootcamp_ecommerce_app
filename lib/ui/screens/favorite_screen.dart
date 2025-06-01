@@ -19,7 +19,14 @@ class FavoriteScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Favorilerim'), // Sayfa başlığı
+        title: const Text(
+          'Favorilerim',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ), // Sayfa başlığı
         centerTitle: true,
         elevation: 2,
         backgroundColor: Color(0xFF0096C7), // AppBar arka plan rengi

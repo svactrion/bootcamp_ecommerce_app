@@ -31,7 +31,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       // Üst AppBar: Sayfa başlığı
       appBar: AppBar(
-        title: const Text('Bootcamp Market'),
+        title: const Text(
+          'Bootcamp Market',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         centerTitle: true,
         elevation: 2,
         backgroundColor: Color(0xFFFF6000),

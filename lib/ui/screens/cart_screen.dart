@@ -16,7 +16,14 @@ class CartScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Sepetim'),
+            title: const Text(
+              'Sepetim',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             centerTitle: true,
             elevation: 1,
             backgroundColor: const Color(0xFF138808), // Yeşil ton
@@ -110,10 +117,9 @@ class CartScreen extends StatelessWidget {
         children: [
           // 4.1) Ürün listesi
           Expanded(
-            child: ListView.separated(
+            child: ListView.builder(
               padding: const EdgeInsets.all(8),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (ctx, i) {
                 final item = items[i];
                 final lineTotal = item.fiyat * item.siparisAdeti;
@@ -135,7 +141,7 @@ class CartScreen extends StatelessWidget {
                     );
                   },
                   child: Card(
-                    color: Color(0xFFF8F9FA),
+                    color: const Color(0xFFF8F9FA),
                     margin: const EdgeInsets.symmetric(
                       horizontal: 6,
                       vertical: 6,
